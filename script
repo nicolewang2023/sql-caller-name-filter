@@ -1,0 +1,33 @@
+/*
+Author: Nicole Wang
+Date: February 2024
+
+Title: Caller Data Analysis - Filtering Caller Names by Call Direction
+*/
+
+USE [MyProject].[inputs];
+GO
+
+CREATE VIEW [dbo].[CallerNameFilter] AS
+
+WITH [Calls] AS (
+    SELECT [CallRecordKeySK], 
+           [CallerA_Name], 
+           [CallerB_Name], 
+           [Calls_A_to_B], 
+           [Calls_B_to_A],
+           CASE WHEN [Calls_A_to_B] = 1 THEN [CallerA_Name] ELSE [CallerB_Name] END AS [From],
+           CASE WHEN [Calls_B_to_A] = 1 THEN [CallerA_Name] ELSE [CallerB_Name] END AS [To]
+    FROM [dbo].[SampleData_CallRecords]
+)
+SELECT 
+    [CallRecordKeySK], 
+    [From] AS Caller, 
+    'From' AS CallType
+FROM [Calls]
+UNION ALL
+SELECT 
+    [CallRecordKeySK], 
+    [To] AS Caller, 
+    'To' AS CallType
+FROM [Calls];
